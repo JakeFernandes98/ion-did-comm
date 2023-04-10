@@ -1,0 +1,34 @@
+{
+  "name": "veramo-agent",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "@decentralized-identity/ion-sdk": "^0.6.0",
+    "@decentralized-identity/ion-tools": "^1.0.6",
+    "@veramo/core": "^5.1.2",
+    "@veramo/data-store": "^5.1.2",
+    "@veramo/did-comm": "^5.1.2",
+    "@veramo/did-manager": "^5.1.2",
+    "@veramo/did-provider-ion": "^5.1.2",
+    "@veramo/did-resolver": "^5.1.2",
+    "@veramo/key-manager": "^5.1.2",
+    "@veramo/kms-local": "^5.1.2",
+    "@veramo/message-handler": "^5.1.2",
+    "@veramo/remote-server": "^5.1.2",
+    "did-resolver": "^4.1.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "fork-of-dwn-sdk-js": "0.1.9",
+    "sqlite3": "^5.1.6",
+    "uuid4": "^2.0.3"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "scripts": {
+    "postinstall": "node apply-patches.js",
+    "start": "node --no-experimental-fetch ./src/index.js"
+  }
+}

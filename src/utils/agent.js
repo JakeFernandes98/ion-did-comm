@@ -136,6 +136,7 @@ export const initAgent = async (name, port, fn) => {
                 id: "didcomm",
                 type: "DIDCommMessaging",
                 serviceEndpoint: `http://localhost:${port}/${name}/messaging`,
+                // serviceEndpoint: `https://735b-152-37-95-108.eu.ngrok.io/${name}/messaging`
             },
         ],
     });
@@ -160,9 +161,17 @@ export const initAgent = async (name, port, fn) => {
     // console.log("FIND ME")
     // displayKeys(name);
 
-    // console.log(keys)
-    let key = keys[2]
-    // console.log(key)
+    let key
+    try{
+        key = keys[2]
+    }catch{
+        for (const km of Object.values(keyManager.kms)) {
+            const { privateKeys } = km.keyStore;
+            const data = Object.values(privateKeys)
+            key = data[2]
+        }
+    }
+    
     const { kid, type, privateKeyHex } = key;
 
     let pubKeyHex = privateKeyHex.slice(64,128)

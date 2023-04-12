@@ -6,8 +6,8 @@ export class BasicMessage {
     constructor(){
     }
 
-    generate(content){
-        return {
+    generate(content, thid=undefined){
+        let msg = {
             "type": "https://didcomm.org/basicmessage/2.0/message",
             "id": uuidv4().toString(),
             "lang": "en",
@@ -17,5 +17,9 @@ export class BasicMessage {
             }
             
         }
+        if(thid !== undefined) msg['thid'] = thid
+        else msg['thid'] = uuidv4().toString()
+
+        return msg
     }
 }

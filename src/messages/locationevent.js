@@ -12,10 +12,10 @@ export class LocationEventMessage {
         
     }
 
-    create(place, type, time){
+    create(place, type, time, thid=undefined){
         if(this.types.indexOf(type) == -1) return null //proper error needed
 
-        return {
+        let msg = {
             "type": "https://neom.com/1.0/location",
             "id": uuidv4().toString(),
             "body": {
@@ -24,5 +24,8 @@ export class LocationEventMessage {
                     "time": time
             }
         }
+        if(thid !== undefined) msg['thid']=thid
+        else msg['thid'] = uuidv4().toString()
+        return msg
     }
 }

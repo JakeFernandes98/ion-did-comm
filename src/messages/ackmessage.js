@@ -6,15 +6,15 @@ export class AckMessage {
     constructor(){
     }
 
-    generate(did, messageBody){
+    generate(thid){
         return {
             "type": "https://didcomm.org/notification/1.0/ack",
             "id": uuidv4().toString(),
-            "status": "OK",
+            "thid": thid,
             "~thread": {
-                "thid": messageBody['id'],
+                "status": "OK",
                 "sender_order": 1,
-                "received_orders": {did: did}
+                "received_orders": {did: 0}
             }
             
         }

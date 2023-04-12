@@ -7,8 +7,9 @@ export class QuestionAnswerMessage {
     constructor(){
     }
 
-    ask(questionText, questionDetail, validResponses){
-        return {
+    ask(questionText, questionDetail, validResponses, thid=undefined){
+        console.log(validResponses)
+        let msg = {
             "type": "https://didcomm.org/questionanswer/1.0/question",
             "id": uuidv4().toString(),
             "body":{
@@ -22,6 +23,9 @@ export class QuestionAnswerMessage {
             }
             
         }
+        if(thid !== undefined) msg['thid']=thid
+        else msg['thid'] = uuidv4().toString()
+        return msg
     }
 
     getOptions(question){
@@ -31,9 +35,9 @@ export class QuestionAnswerMessage {
 
     //expects response in form
     //{"text": "Yes, it's me"}
-    answer(question, decision){
+    answer(question, decision, thid=undefined){
         if(this.getOptions(question).indexOf(decision) != -1){
-            return {
+            let msg = {
                 "type": "https://didcomm.org/questionanswer/1.0/answer",
                 "id": uuidv4().toString(),
                 "thid": question["id"],
@@ -42,6 +46,9 @@ export class QuestionAnswerMessage {
                     'response' : decision['text']
                 }
             }
+            if(thid !== undefined) msg['thid']=thid
+            else msg['thid'] = uuidv4().toString()
+            return msg
         }
 
     }

@@ -6,6 +6,7 @@ import { Service } from "./service.js"
 import { configureDwn } from "../utils/util.js"
 import fs from "fs";
 import { Console } from "console"
+import fetch from 'node-fetch';
 
 export class Wallet {
 
@@ -27,6 +28,26 @@ export class Wallet {
     }
 
     async init(app, dwn, PORT){
+
+
+        let response = await fetch('http://localhost:3001/ground-travel-pass/did')
+        let data = await response.json()
+        this.gtpDID = data.did
+
+        response = await fetch('http://localhost:3001/airport/did')
+        data = await response.json()
+        this.airportDID = data.did
+
+        response = await fetch('http://localhost:3001/hotel/did')
+        data = await response.json()
+        this.hotelDID = data.did
+
+        response = await fetch('http://localhost:3001/diving/did')
+        data = await response.json()
+        this.divingDID = data.did
+
+
+
         await this.agent.init(PORT, dwn, this.didCommHandler.bind(this))
         await this.agent.initReceiver(app)
 
@@ -38,47 +59,57 @@ export class Wallet {
         app.post('/wallet/send', async(req,res) => {
             let message = req.body.message
             let to = req.body.to
+            switch(to){
+                
+            }
             let response = await this.agent.send(to, message)
             res.send(response)
         })
+
+        
     }
 
     
     // Receives a location event from wallet ->
     // Sends a question/answer to wallet (do you want a taxi) ->
     async didCommHandler(event, context){
-        let messageBody = event.data.message._body
+        let thid = event.data.message.thid
+        let type = event.data.message.type
+        let messageBody = event.data.message.body
         let from = event.data.message.from
         console.log("------------------")        
         console.log(" THIS IS THE body ", messageBody)
         console.log(" THIS IS THE from ", from)
-        if (messageBody['type'] == "https://neom.com/1.0/dwnpermission") {
-            await this.grantPermission(messageBody, from)
-        }else if (messageBody['type'] == "https://neom.com/1.0/location") {
-            this.handleLocation(messageBody, from, event.data.message)
+        if (type == "https://neom.com/1.0/dwnpermission") {
+            await this.grantPermission(messageBody, from, thid)
+        }else if (type == "https://neom.com/1.0/location") {
+            this.handleLocation(messageBody, thid)
         }
 
 
     }
 
-    async handleLocation(messageBody, from, message){
+    async handleLocation(messageBody, thid){
 
         console.log('rerouting message', messageBody)
+
+        let location = new LocationEventMessage()
+        let locationMsg = location.create(messageBody['place'],messageBody['type'],messageBody['time'],thid)
         
-        if(messageBody['body']['place'] == 'hotel' && messageBody['body']['type'] == 'arriving'){
-            await this.agent.send(this.hotelDID, messageBody)
-        }else if(messageBody['body']['place'] == 'hotel' && messageBody['body']['type'] == 'arrived'){
-            await this.agent.send(this.divingDID, messageBody)
-        }else if(messageBody['body']['place'] == 'airport' && messageBody['body']['type'] == 'arriving'){
-            await this.agent.send(this.airportDID, messageBody)
-        }else if(messageBody['body']['place'] == 'airport' && messageBody['body']['type'] == 'arrived'){
-            await this.agent.send(this.airportDID, messageBody)
+        if(messageBody['place'] == 'hotel' && messageBody['type'] == 'arriving'){
+            await this.agent.send(this.hotelDID, locationMsg)
+        }else if(messageBody['place'] == 'hotel' && messageBody['type'] == 'arrived'){
+            await this.agent.send(this.divingDID, locationMsg)
+        }else if(messageBody['place'] == 'airport' && messageBody['type'] == 'arriving'){
+            await this.agent.send(this.airportDID, locationMsg)
+        }else if(messageBody['place'] == 'airport' && messageBody['type'] == 'arrived'){
+            await this.agent.send(this.airportDID, locationMsg)
         }
     }
 
     async grantPermission(messageBody, from){
         let filter = {
-            'objectId': messageBody['body']['objectId']
+            'objectId': messageBody['objectId']
         }
         let findPerm = await this.agent.getDWN().createPermissionsRead(this.agent.getKeys(),this.agent.getDID(),filter)
         console.log('find perm message', findPerm)

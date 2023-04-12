@@ -18,13 +18,14 @@ export class Service {
         
     }
 
-    async init(port,  _dwn, fn){
-       const {identifier, agent, decodedKeys} = await initAgent(this.servicename, port, fn);
+    async init(port,  _dwn, _fn){
+       const {identifier, agent, decodedKeys} = await initAgent(this.servicename, port, _fn);
        this.identifier = identifier
        this.agent = agent
        this.keys = decodedKeys
        this.dwn = _dwn
     }
+
     
     getHost(){
         return this.host
@@ -43,7 +44,7 @@ export class Service {
     }
 
     getKeys(){
-        // console.log('getting keys')
+        console.log('getting keys')
         return this.keys
     }
 
@@ -60,10 +61,15 @@ export class Service {
             console.log(e)
             return {status:{code: 500}}
         }
+        
     }
     
     
     async initReceiver(app) {
+        app.get('/'+this.servicename+'/did', async (req,res) => {
+            res.send(this.getKeys())
+        })
+
         app.use(
             '/'+this.servicename+"/messaging",
         
@@ -77,6 +83,7 @@ export class Service {
     }
     
     async send(_to, _body){
+        console.log(_body)
         try{
             const id = uuidv4().toString();
             const packedMessage = await this.agent.packDIDCommMessage({
@@ -85,7 +92,7 @@ export class Service {
                 to: _to,
                 from: this.identifier.did,
                 id,
-                _body,
+                ..._body,
               },
             });
           
@@ -100,11 +107,11 @@ export class Service {
         }catch(e){
             console.log(e)
         }
-        
     }
 
     async initTrigger(app, triggerName, _to, _body){
         await app.get('/'+this.servicename+"/"+triggerName, async (req,res) => {
+            console.log(_to)
             let response = await this.send(_to,_body)
             res.send(response)
         })

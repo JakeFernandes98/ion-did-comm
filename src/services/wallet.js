@@ -4,12 +4,13 @@ import { QuestionAnswerMessage } from "../messages/questionanswer.js"
 import { AckMessage } from "../messages/ackmessage.js"
 import { Service } from "./service.js"
 import { configureDwn } from "../utils/util.js"
-import fs from "fs";
-import { Console } from "console"
 import fetch from 'node-fetch';
+import dotenv from "dotenv";
+dotenv.config();
 
 export class Wallet {
 
+    SERVICE_IP = process.env.SERVICE_IP
     agent
     user_did
     gtpDID = 'did:ion:EiBYCzJhdb0kHX43TiZ8HZBUgpSZfFOXVoupo5Zjf9nwlA:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJkaWRjb21tIiwicHVibGljS2V5SndrIjp7ImNydiI6IkVkMjU1MTkiLCJrdHkiOiJPS1AiLCJ4IjoicGRseDJyMGRrWkRzck9MN1o2anBqQkhBcnlvS3JFM2Z3S3U1LUtpM2M0QSJ9LCJwdXJwb3NlcyI6WyJrZXlBZ3JlZW1lbnQiLCJhdXRoZW50aWNhdGlvbiIsImFzc2VydGlvbk1ldGhvZCJdLCJ0eXBlIjoiRWQyNTUxOSJ9XSwic2VydmljZXMiOlt7ImlkIjoiZGlkY29tbSIsInNlcnZpY2VFbmRwb2ludCI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMS9ncm91bmQtdHJhdmVsLXBhc3MvbWVzc2FnaW5nIiwidHlwZSI6IkRJRENvbW1NZXNzYWdpbmcifV19fV0sInVwZGF0ZUNvbW1pdG1lbnQiOiJFaUNTU0RGWDRzWFowN3BOc0FOeC0xT1VpQnRqN1dXWWw0RjB0YXZFazN2UXV3In0sInN1ZmZpeERhdGEiOnsiZGVsdGFIYXNoIjoiRWlERjhud2s1X1Q4N2ZFNnRqQ3d4Z18yYTRLQllXVERrQThESkM1T3VQdlpVQSIsInJlY292ZXJ5Q29tbWl0bWVudCI6IkVpQTNfMWZ1SlF3N1B4WjFPbHVSV2Zid2UzUU93MEswMEFQc3FUNkY2UW5xREEifX0'
@@ -30,19 +31,19 @@ export class Wallet {
     async init(app, dwn, PORT){
 
 
-        let response = await fetch('http://localhost:3001/ground-travel-pass/did')
+        let response = await fetch(SERVICE_IP+'/ground-travel-pass/did')
         let data = await response.json()
         this.gtpDID = data.did
 
-        response = await fetch('http://localhost:3001/airport/did')
+        response = await fetch(SERVICE_IP+'/airport/did')
         data = await response.json()
         this.airportDID = data.did
 
-        response = await fetch('http://localhost:3001/hotel/did')
+        response = await fetch(SERVICE_IP+'/hotel/did')
         data = await response.json()
         this.hotelDID = data.did
 
-        response = await fetch('http://localhost:3001/diving/did')
+        response = await fetch(SERVICE_IP+'/diving/did')
         data = await response.json()
         this.divingDID = data.did
 
